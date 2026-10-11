@@ -11,24 +11,24 @@ st.set_page_config(page_title="Visu Minerales", page_icon="💎", layout="center
 # --- DISEÑO COZY Y RESPONSIVE (CSS Personalizado) ---
 st.markdown("""
 <style>
-    /* Fondo principal cálido (beige claro) */
+    /* Fondo principal gris elegante */
     .stApp {
-        background-color: #FDFBF7;
+        background-color: #F0F2F6;
     }
     /* Color de los textos principales */
     h1, h2, h3, h4 {
-        color: #4A403A !important;
+        color: #2C3E50 !important;
         font-family: 'Helvetica Neue', sans-serif;
     }
     p, label {
-        color: #5C524D !important;
+        color: #34495E !important;
     }
-    /* Estilo de los botones (Opciones) */
+    /* Estilo de los botones (Opciones) - Colores bonitos y limpios */
     div.stButton > button {
-        background-color: #E27D60;
-        color: white;
-        border-radius: 15px;
-        border: none;
+        background-color: #FFFFFF;
+        color: #2980B9;
+        border-radius: 12px;
+        border: 2px solid #2980B9;
         padding: 10px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         transition: all 0.2s ease-in-out;
@@ -36,15 +36,14 @@ st.markdown("""
         font-size: 16px;
         height: auto;
         min-height: 80px;
-        white-space: normal; /* Permite que textos largos bajen de línea */
+        white-space: normal;
     }
-    /* Efecto al pasar el ratón por encima de las opciones */
+    /* Efecto al pasar el ratón por encima */
     div.stButton > button:hover {
-        background-color: #C7674D;
+        background-color: #2980B9;
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         color: white;
-        border-color: #C7674D;
     }
     /* Tarjetas flotantes para métricas (Aciertos/Fallos) */
     div[data-testid="metric-container"] {
@@ -52,13 +51,22 @@ st.markdown("""
         border-radius: 15px;
         padding: 15px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #E0E4E8;
     }
     /* Centrar la imagen y darle esquinas redondeadas */
     img {
         border-radius: 15px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    /* Ocultar elementos técnicos para aspecto de App nativa */
+    /* FORZAR CUADRÍCULA 2x2 EN MÓVILES */
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+    }
+    div[data-testid="column"] {
+        min-width: calc(50% - 1rem) !important;
+        flex: 1 1 calc(50% - 1rem) !important;
+    }
+    /* Ocultar elementos técnicos */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {background-color: transparent !important;}
@@ -121,11 +129,11 @@ def verificar_respuesta(opcion_elegida):
     if opcion_elegida == st.session_state.pregunta_actual['nombre_correcto']:
         st.session_state.aciertos += 1
         st.session_state.mensaje = ("success", f"✅ ¡Correcto! Era {opcion_elegida}")
-        st.session_state.animacion = "acierto"
+        st.toast('✅ ¡CORRECTO!', icon='✅')
     else:
         st.session_state.fallos += 1
         st.session_state.mensaje = ("error", f"❌ Fallaste. La respuesta correcta era:\n{st.session_state.pregunta_actual['nombre_correcto']}")
-        st.session_state.animacion = "fallo"
+        st.toast('❌ ¡FALLASTE!', icon='❌')
     # Borramos la pregunta actual para forzar la creación de una nueva
     st.session_state.pregunta_actual = None
 
@@ -195,14 +203,6 @@ if archivos_disponibles:
     if total_minerales >= 4:
         st.divider()
         
-        # Disparar animaciones
-        if st.session_state.animacion == "acierto":
-            st.balloons()
-            st.session_state.animacion = None
-        elif st.session_state.animacion == "fallo":
-            st.snow()
-            st.session_state.animacion = None
-            
         # Marcadores
         col1, col2 = st.columns(2)
         col1.metric("✅ Aciertos", st.session_state.aciertos)
