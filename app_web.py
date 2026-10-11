@@ -88,8 +88,6 @@ if 'mensaje' not in st.session_state:
     st.session_state.mensaje = None
 if 'minerales_activos' not in st.session_state:
     st.session_state.minerales_activos = []
-if 'animacion' not in st.session_state:
-    st.session_state.animacion = None
 
 # --- FUNCIÓN DE LECTURA DE PDFs LOCALES ---
 @st.cache_data(show_spinner="Analizando la biblioteca de PDFs...")
@@ -98,7 +96,7 @@ def procesar_pdfs_locales(nombres_archivos):
     
     for archivo in nombres_archivos:
         try:
-            # Abrimos el archivo leyendo directamente de la ruta local
+            # Abrimos el archivo leyendo directamente de la ruta local o repositorio
             doc = fitz.open(archivo)
             
             for num_pagina in range(doc.page_count):
@@ -143,7 +141,7 @@ def generar_nueva_pregunta():
     # Elegimos un mineral al azar de los PDFs activos
     mineral_correcto = random.choice(st.session_state.minerales_activos)
     
-    # Abrimos el archivo PDF desde el disco y extraemos la foto
+    # Abrimos el archivo PDF y extraemos la foto
     doc = fitz.open(mineral_correcto["pdf_name"])
     pagina = doc[mineral_correcto['pagina_pdf']]
     imagenes = pagina.get_images(full=True)
@@ -177,11 +175,15 @@ def generar_nueva_pregunta():
     }
     st.session_state.opciones = opciones
 
-# --- INTERFAZ DE USUARIO (WEB) ---
+# --- NUEVO: FUNCIÓN PARA RESETEAR LA PREGUNTA ---
+def actualizar_temario():
+    st.session_state.pregunta_actual = None
+    st.session_state.mensaje = None
 
+# --- INTERFAZ DE USUARIO (WEB) ---
 st.title("💎 Test de Visu: Minerales")
 
-# Buscar PDFs automáticamente en la carpeta (evitando archivos ocultos de Mac como .DS_Store)
+# Buscar PDFs automáticamente en la carpeta de GitHub
 archivos_disponibles = [f for f in os.listdir('.') if f.lower().endswith('.pdf') and not f.startswith('.')]
 
 if archivos_disponibles:
@@ -194,7 +196,8 @@ if archivos_disponibles:
     pdfs_seleccionados = st.multiselect(
         "Se cargarán todas las fotos de los temas que dejes seleccionados:",
         options=archivos_disponibles,
-        default=archivos_disponibles
+        default=archivos_disponibles,
+        on_change=actualizar_temario
     )
     
     st.session_state.minerales_activos = [m for m in st.session_state.minerales_indexados if m['pdf_name'] in pdfs_seleccionados]
